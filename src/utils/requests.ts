@@ -2,15 +2,20 @@ const apiUrl = import.meta.env.VITE_API_URL
 
 export async function $fetch(
   endpoint: string,
-  options?: Omit<RequestInit, "headers"> & {
-    headers: Headers
+  options?: Omit<RequestInit, "headers" | "credentials"> & {
+    headers?: Headers
+    token?: string | null | undefined
   },
 ): Promise<Response> {
   const headers = new Headers({
     Accept: "application/json",
   })
 
-  options?.headers.forEach((value, key) => {
+  if (options?.token) {
+    headers.append("X-XSRF-TOKEN", options.token)
+  }
+
+  options?.headers?.forEach((value, key) => {
     headers.append(key, value)
   })
 

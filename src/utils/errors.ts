@@ -51,3 +51,13 @@ export function normalizeErrors(
 
   return []
 }
+
+export async function responseErrors(response: Response): Promise<Response> {
+  const errorBody = await response.json().catch((errors) => errors)
+
+  return Response.json(normalizeErrors(errorBody), {
+    status: response.status,
+    statusText: response.statusText,
+    headers: response.headers,
+  })
+}

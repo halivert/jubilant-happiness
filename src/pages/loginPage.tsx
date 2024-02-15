@@ -3,6 +3,7 @@ import { Input } from "../components"
 import { useLogin } from "../hooks/requests"
 import ErrorList from "../components/errorList"
 import { useNavigate } from "react-router-dom"
+import { Button } from "../components/button"
 
 export default function LoginPage() {
   const navigate = useNavigate()
@@ -26,9 +27,9 @@ export default function LoginPage() {
       <Input name="email" label="Email" type="email" />
       <Input name="password" label="Password" type="password" />
 
-      <button className="bg-purple-900 text-purple-50" type="submit">
+      <Button type="submit" loading={login.isPending}>
         Login
-      </button>
+      </Button>
 
       {login.isError && <ErrorList errors={login.error} />}
     </form>

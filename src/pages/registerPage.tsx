@@ -3,6 +3,7 @@ import { Input } from "../components"
 import { useRegister } from "../hooks/requests"
 import ErrorList from "../components/errorList"
 import { useNavigate } from "react-router-dom"
+import { Button } from "../components/button"
 
 export default function RegisterPage() {
   const navigate = useNavigate()
@@ -40,9 +41,9 @@ export default function RegisterPage() {
         />
       </div>
 
-      <button className="bg-purple-900 text-purple-50" type="submit">
-        Login
-      </button>
+      <Button type="submit" loading={register.isPending}>
+        Register
+      </Button>
 
       {register.isError && <ErrorList errors={register.error} />}
     </form>

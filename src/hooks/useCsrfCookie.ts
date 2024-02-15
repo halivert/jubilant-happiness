@@ -1,22 +1,32 @@
-import getCookie from "../utils/getCookie"
-import { useQuery } from "@tanstack/react-query"
-
-const apiUrl = import.meta.env.VITE_API_URL
+import { deleteCookie, getCookie } from "../utils/cookies"
+import { QueryClient, useQuery } from "@tanstack/react-query"
+import { $fetch } from "../utils/requests"
 
 export const queryKey = ["csrf"] as const
+
+const cookieName = "XSRF-TOKEN"
+
+export function invalidateCsrfCookie(queryClient: QueryClient) {
+  queryClient.invalidateQueries({ queryKey })
+  deleteCookie(cookieName)
+}
 
 export default function useCsrfCookie() {
   return useQuery({
     queryKey: queryKey,
     queryFn: async () => {
-      await fetch(`${apiUrl}/sanctum/csrf-cookie`, {
-        headers: { Accept: "application/json" },
-        credentials: "include",
-      })
+      const cookie = getCookie(cookieName)
 
-      const cookie = getCookie("XSRF-TOKEN")
+      if (cookie) {
+        return decodeURIComponent(cookie)
+      }
 
-      return cookie ? decodeURIComponent(cookie) : ""
+      await $fetch("/sanctum/csrf-cookie")
+
+      const newCookie = getCookie(cookieName)
+
+      return newCookie ? decodeURIComponent(newCookie) : null
     },
+    staleTime: Infinity,
   })
 }

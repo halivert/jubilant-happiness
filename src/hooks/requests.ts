@@ -1,18 +1,8 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import useCsrfCookie, { queryKey as csrfQueryKey } from "./useCsrfCookie"
-import { normalizeErrors } from "../utils/errors"
+import useCsrfCookie, { invalidateCsrfCookie } from "./useCsrfCookie"
 import { $fetch } from "../utils/requests"
 import { queryKey as userQueryKey } from "../queries/user"
-
-const responseErrors = async (response: Response): Promise<Response> => {
-  const errorBody = await response.json().catch((errors) => errors)
-
-  return Response.json(normalizeErrors(errorBody), {
-    status: response.status,
-    statusText: response.statusText,
-    headers: response.headers,
-  })
-}
+import { responseErrors } from "../utils/errors"
 
 export function useLogin() {
   const queryClient = useQueryClient()
@@ -23,9 +13,7 @@ export function useLogin() {
     mutationFn: async (body: FormData) => {
       const response = await $fetch("/login", {
         method: "POST",
-        headers: new Headers({
-          "X-XSRF-TOKEN": csrfCookie.data ?? "",
-        }),
+        token: csrfCookie.data,
         body,
       })
 
@@ -37,13 +25,17 @@ export function useLogin() {
     },
     onError: (error) => {
       if (error.status === 419) {
-        queryClient.invalidateQueries({ queryKey: csrfQueryKey })
+        invalidateCsrfCookie(queryClient)
       }
     },
     onSuccess: (response) => {
-      response.json().then((userData) => {
-        queryClient.setQueryData(userQueryKey, userData)
-        queryClient.invalidateQueries({ queryKey: csrfQueryKey })
+      response.json().then((data) => {
+        if (data.two_factor) {
+          throw new Error("User requires two factor auth. Not implemented yet.")
+        }
+
+        queryClient.invalidateQueries({ queryKey: userQueryKey })
+        invalidateCsrfCookie(queryClient)
       })
     },
   })
@@ -58,9 +50,7 @@ export function useRegister() {
     mutationFn: async (body: FormData) => {
       const response = await $fetch("/register", {
         method: "POST",
-        headers: new Headers({
-          "X-XSRF-TOKEN": csrfCookie.data ?? "",
-        }),
+        token: csrfCookie.data,
         body,
       })
 
@@ -72,13 +62,12 @@ export function useRegister() {
     },
     onError: (error) => {
       if (error.status === 419) {
-        queryClient.invalidateQueries({ queryKey: csrfQueryKey })
+        invalidateCsrfCookie(queryClient)
       }
     },
-    onSuccess: (response) => {
-      response.json().then((userData) => {
-        queryClient.setQueryData(userQueryKey, userData)
-      })
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: userQueryKey })
+      invalidateCsrfCookie(queryClient)
     },
   })
 }
@@ -92,9 +81,7 @@ export function useLogout() {
     mutationFn: async () => {
       const response = await $fetch("/logout", {
         method: "POST",
-        headers: new Headers({
-          "X-XSRF-TOKEN": csrfCookie.data ?? "",
-        }),
+        token: csrfCookie.data,
       })
 
       if (response.ok) {
@@ -105,11 +92,12 @@ export function useLogout() {
     },
     onError: (error) => {
       if (error.status === 419) {
-        queryClient.invalidateQueries({ queryKey: csrfQueryKey })
+        invalidateCsrfCookie(queryClient)
       }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: userQueryKey })
+      invalidateCsrfCookie(queryClient)
     },
     retry: 2,
   })

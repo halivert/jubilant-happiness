@@ -20,6 +20,7 @@ export const query: UndefinedInitialDataOptions<User> = {
       .catch(() => null)
   },
   retry: false,
+  staleTime: Infinity,
 }
 
 export function useUser() {
