@@ -1,5 +1,6 @@
 import { UndefinedInitialDataOptions, useQuery } from "@tanstack/react-query"
 import { $fetch } from "../utils/requests"
+import { getCookie } from "../utils/cookies"
 
 export const queryKey = ["user"] as const
 
@@ -12,7 +13,9 @@ interface User {
 export const query: UndefinedInitialDataOptions<User> = {
   queryKey,
   queryFn: async () => {
-    return $fetch("/me")
+    return $fetch("/me", {
+      token: encodeURIComponent(getCookie("XSRF-TOKEN") ?? ""),
+    })
       .then((response) => {
         if (response.ok) return response.json()
         return null
