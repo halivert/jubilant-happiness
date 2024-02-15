@@ -32,8 +32,10 @@ export function Button({ children, className, loading, ...rest }: ButtonProps) {
   return (
     <button
       className={[
+				"rounded-lg py-2 px-4 text-base cursor-default font-medium",
         "flex justify-center bg-purple-900 text-purple-50",
         className,
+				"hover:bg-purple-800 active:bg-purple-700",
 				"disabled:cursor-not-allowed disabled:opacity-80"
       ].join(" ")}
       disabled={loading}

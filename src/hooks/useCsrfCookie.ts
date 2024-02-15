@@ -1,4 +1,4 @@
-import { deleteCookie, getCookie } from "../utils/cookies"
+import { getCookie } from "../utils/cookies"
 import { QueryClient, useQuery } from "@tanstack/react-query"
 import { $fetch } from "../utils/requests"
 
@@ -8,24 +8,23 @@ const cookieName = "XSRF-TOKEN"
 
 export function invalidateCsrfCookie(queryClient: QueryClient) {
   queryClient.invalidateQueries({ queryKey })
-  deleteCookie(cookieName)
 }
 
 export default function useCsrfCookie() {
   return useQuery({
     queryKey: queryKey,
     queryFn: async () => {
-      const cookie = getCookie(cookieName)
+      const response = await $fetch("/sanctum/csrf-cookie")
 
-      if (cookie) {
-        return decodeURIComponent(cookie)
+      if (response.ok) {
+        const newCookie = getCookie(cookieName)
+
+        if (newCookie) {
+          return decodeURIComponent(newCookie)
+        }
       }
 
-      await $fetch("/sanctum/csrf-cookie")
-
-      const newCookie = getCookie(cookieName)
-
-      return newCookie ? decodeURIComponent(newCookie) : null
+      return null
     },
     staleTime: Infinity,
   })

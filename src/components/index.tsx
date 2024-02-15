@@ -24,7 +24,11 @@ export function Input({
     >
       {label}
       <input
-        className={`border-purple-400 rounded border px-2 py-1 ${className}`}
+        className={[
+          "border-purple-400 rounded border px-2 py-1",
+          className,
+					"outline-purple-300"
+        ].join(" ")}
         {...rest}
         name={name}
       />

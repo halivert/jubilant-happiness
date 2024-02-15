@@ -83,7 +83,7 @@ function App() {
       <nav className="flex mb-6 justify-between items-center">
         <div>
           <Link to="/" className="font-bold text-lg">
-            Minimal
+            Home
           </Link>
         </div>
         <div className="flex gap-3">

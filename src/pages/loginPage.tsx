@@ -24,7 +24,7 @@ export default function LoginPage() {
 
   return (
     <form className="flex flex-col gap-3" onSubmit={handleSubmit}>
-      <Input name="email" label="Email" type="email" />
+      <Input name="email" label="Email" type="email" autoFocus />
       <Input name="password" label="Password" type="password" />
 
       <Button type="submit" loading={login.isPending}>
