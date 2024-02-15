@@ -7,5 +7,6 @@ export function getCookie(name: string): string | undefined {
 }
 
 export function deleteCookie(name: string): void {
+  console.info(`Deleting ${name}`)
   document.cookie = `${name}=; expires=${new Date(0)}`
 }
