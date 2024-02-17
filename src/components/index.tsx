@@ -17,7 +17,7 @@ export function Input({
   return (
     <label
       className={[
-        "flex gap-2",
+        "flex gap-2 min-w-0",
         horizontal ? "flex-row" : "flex-col",
         fieldClassName,
       ].join(" ")}
@@ -27,7 +27,7 @@ export function Input({
         className={[
           "border-purple-400 rounded border px-2 py-1",
           className,
-					"outline-purple-300"
+          "focus-visible:outline outline-purple-300",
         ].join(" ")}
         {...rest}
         name={name}
